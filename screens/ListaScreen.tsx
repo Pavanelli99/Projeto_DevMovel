@@ -65,6 +65,11 @@ const ListaScreen: React.FC = () => {
         <FlatList
         data={equipamentos}
         renderItem={({ item }) => (
+          <TouchableOpacity
+        
+        >
+        
+          
           <View style={styles.itemContainer}>
             <View style={styles.itemContent}>
               <FontAwesome name="laptop" size={24} color="black" style={styles.icon} />
@@ -75,13 +80,15 @@ const ListaScreen: React.FC = () => {
 
               </View>
             </View>
+            
             <TouchableOpacity
         style={styles.editButton}
-        onPress={() => navigation.navigate('Edit')}
+        onPress={() => navigation.navigate('Edit', { equipamento: item })}
       >
         <MaterialIcons name="edit" size={32} color="white" />
       </TouchableOpacity>
           </View>
+          </TouchableOpacity>
         )}
         keyExtractor={item => item.id}
       />
