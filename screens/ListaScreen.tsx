@@ -66,7 +66,7 @@ const ListaScreen: React.FC = () => {
         data={equipamentos}
         renderItem={({ item }) => (
           <TouchableOpacity
-        
+          onPress={() => navigation.navigate('EquipamentoDetalhes', { equipamento: item })}
         >
         
           

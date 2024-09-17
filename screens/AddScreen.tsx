@@ -5,6 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../banco/firebaseConfig'; // Arquivo de configuração do Firebase
+import * as ImagePicker from 'expo-image-picker';
 
 const AddScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -14,6 +15,7 @@ const AddScreen: React.FC = () => {
   const [hostname, setHostname] = useState('');
   const [modelo, setModelo] = useState('');
   const [informacoes, setInformacoes] = useState('');
+  const [photo, setPhoto] = useState<string | null>(null);
 
   const handleSave = async () => {
     try {
@@ -23,7 +25,8 @@ const AddScreen: React.FC = () => {
         area,
         hostname,
         modelo,
-        informacoes
+        informacoes,
+        photo
       });
       Alert.alert('Sucesso', 'Equipamento salvo com sucesso!');
       navigation.goBack();
@@ -32,6 +35,22 @@ const AddScreen: React.FC = () => {
     }
   };
 
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Erro', 'Precisamos de permissão para acessar a câmera');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setPhoto(result.uri);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -45,7 +64,7 @@ const AddScreen: React.FC = () => {
         value={nome}
         onChangeText={setNome}
       />
-       <TextInput
+      <TextInput
         style={styles.input}
         placeholder="Sobrenome"
         value={sobrenome}
@@ -68,9 +87,7 @@ const AddScreen: React.FC = () => {
           <Picker.Item label="TI" value="TI" />
           <Picker.Item label="Comunicação" value="Comunicação" />
         </Picker>
-
       </View>
-      
       <TextInput
         style={styles.input}
         placeholder="Hostname"
@@ -79,25 +96,21 @@ const AddScreen: React.FC = () => {
       />
       <Text style={styles.text}>Modelo</Text>
       <View style={styles.pickerContainer}>
-      <Picker
-        style={styles.picker}
-        selectedValue={modelo}
-        onValueChange={(itemValue) => setModelo(itemValue)}
-      >
-        <Picker.Item label="Selecione um modelo" value="" />
-        <Picker.Item label="Dell Latitude 3410" value="Dell Latitude 3410" />
-        <Picker.Item label="Dell Latitude 3420" value="Dell Latitude 3420" />
-        <Picker.Item label="Dell Latitude 3480" value="Dell Latitude 3480" />
-        <Picker.Item label="Dell Latitude 5430" value="Dell Latitude 5430" />
-        <Picker.Item label="Dell Precision 3660" value="Dell Precision 3660" />
-        <Picker.Item label="Dell Precision 3581" value="Dell Precision 3581" />
-        <Picker.Item label="Lenovo Thinkpad E14" value="Lenovo Thinkpad E14" />
-      </Picker>
-
+        <Picker
+          style={styles.picker}
+          selectedValue={modelo}
+          onValueChange={(itemValue) => setModelo(itemValue)}
+        >
+          <Picker.Item label="Selecione um modelo" value="" />
+          <Picker.Item label="Dell Latitude 3410" value="Dell Latitude 3410" />
+          <Picker.Item label="Dell Latitude 3420" value="Dell Latitude 3420" />
+          <Picker.Item label="Dell Latitude 3480" value="Dell Latitude 3480" />
+          <Picker.Item label="Dell Latitude 5430" value="Dell Latitude 5430" />
+          <Picker.Item label="Dell Precision 3660" value="Dell Precision 3660" />
+          <Picker.Item label="Dell Precision 3581" value="Dell Precision 3581" />
+          <Picker.Item label="Lenovo Thinkpad E14" value="Lenovo Thinkpad E14" />
+        </Picker>
       </View>
-
-
-
       <TextInput
         style={[styles.input, { height: 100 }]}
         placeholder="Informações"
@@ -105,12 +118,13 @@ const AddScreen: React.FC = () => {
         onChangeText={setInformacoes}
         multiline
       />
-
+      
       <View style={styles.buttonContainer}>
-      <TouchableOpacity onPress={handleSave} style={styles.evidenceButton}>
-          <FontAwesome name="camera" size={32} color="black" />
-          <Text style={styles.buttonText}>Evidência</Text>
-        </TouchableOpacity>
+      <TouchableOpacity onPress={handlePickImage} style={styles.evidenceButton}>
+        <FontAwesome name="camera" size={32} color="black" />
+        <Text style={styles.buttonText}>Evidência</Text>
+      </TouchableOpacity>
+      {photo && <Image source={{ uri: photo }} style={styles.image} />}
         <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
           <FontAwesome name="check" size={32} color="black" />
           <Text style={styles.buttonText}>Salvar</Text>
@@ -128,7 +142,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignSelf: 'flex-start',
-    marginVertical: 15,
+    marginVertical: 30,
     padding: 5,
     marginBottom: 20,
   },
@@ -137,6 +151,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    marginVertical: 15,
   },
   input: {
     borderWidth: 1,
@@ -145,30 +160,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
   },
-  selectedText: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#333',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 1, // Reduza o espaçamento entre o campo e os botões
-  },
-  evidenceButton: {
-    alignItems: 'center',
-    marginRight: 10, // Adicione uma margem para aproximar os botões
-  },
-  saveButton: {
-    alignItems: 'center',
-  },
-  buttonText: {
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   picker: {
-    color:"black",
+    color: "black",
     height: 50,
     width: '100%',
   },
@@ -181,11 +174,30 @@ const styles = StyleSheet.create({
   },
   text: {
     marginBottom: 10,
-    alignContent: "flex-start",
     fontSize: 14,
     fontWeight: "bold"
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 1,
+  },
+  saveButton: {
+    alignItems: 'center',
+  },
+  buttonText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    alignItems: 'center',
 
   },
+  evidenceButton: {
+    alignItems: 'center',
+    marginRight: 10,
+
+  },
+  
 });
 
 export default AddScreen;
