@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -24,4 +24,11 @@ const analytics = getAnalytics(app);
 // Inicializando o Firestore
 const db = getFirestore(app);
 
-export { db };
+// Verifica e inicializa o Analytics
+isSupported().then((yes) => {
+  if (yes) {
+    const analytics = getAnalytics(app);
+  }
+});
+
+export { app, db };

@@ -26,9 +26,17 @@ const EditScreen: React.FC = () => {
       navigation.goBack();
     }
   }, [equipamento, navigation]);
+  
 
   const handleSave = async () => {
+    // Verifica se os campos obrigatórios estão preenchidos
+    if (!nome || !sobrenome || !area || !hostname || !modelo || !informacoes) {
+      Alert.alert('Erro', 'Todos os campos devem ser preenchidos.');
+      return;
+    }
+  
     if (!equipamento) return;
+  
     try {
       const equipamentoRef = doc(db, 'equipamentos', equipamento.id);
       await updateDoc(equipamentoRef, {
@@ -37,7 +45,7 @@ const EditScreen: React.FC = () => {
         area,
         hostname,
         modelo,
-        informacoes
+        informacoes,
       });
       Alert.alert('Sucesso', 'Equipamento atualizado com sucesso!');
       navigation.goBack();

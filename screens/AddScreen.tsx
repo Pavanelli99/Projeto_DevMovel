@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../banco/firebaseConfig'; // Arquivo de configuração do Firebase
 import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 
 const AddScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -16,23 +17,45 @@ const AddScreen: React.FC = () => {
   const [modelo, setModelo] = useState('');
   const [informacoes, setInformacoes] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null); // Para armazenar a URL da imagem
 
   const handleSave = async () => {
+    // Verifica se os campos obrigatórios estão preenchidos
+    if (!nome || !sobrenome || !area || !hostname || !modelo || !informacoes) {
+      Alert.alert('Erro', 'Todos os campos devem ser preenchidos.');
+      return;
+    }
+
     try {
-      await addDoc(collection(db, "equipamentos"), {
+      // Salva os dados no Firestore
+      await addDoc(collection(db, 'equipamentos'), {
         nome,
         sobrenome,
         area,
         hostname,
         modelo,
         informacoes,
-        photo
+        photoUrl, // Salva a URL da imagem no Firestore
       });
       Alert.alert('Sucesso', 'Equipamento salvo com sucesso!');
       navigation.goBack();
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível salvar o equipamento');
     }
+  };
+
+  const uploadImageToStorage = async (uri: string) => {
+    const storage = getStorage();
+    const imageRef = ref(storage, `images/${Date.now()}.jpg`);
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    await uploadBytes(imageRef, blob);
+
+    // Obtém a URL de download da imagem
+    const downloadUrl = await getDownloadURL(imageRef);
+    setPhotoUrl(downloadUrl);
   };
 
   const handlePickImage = async () => {
@@ -49,6 +72,8 @@ const AddScreen: React.FC = () => {
 
     if (!result.cancelled) {
       setPhoto(result.uri);
+      // Faz upload da imagem para o Firebase Storage
+      await uploadImageToStorage(result.uri);
     }
   };
 
@@ -120,11 +145,11 @@ const AddScreen: React.FC = () => {
       />
       
       <View style={styles.buttonContainer}>
-      <TouchableOpacity onPress={handlePickImage} style={styles.evidenceButton}>
-        <FontAwesome name="camera" size={32} color="black" />
-        <Text style={styles.buttonText}>Evidência</Text>
-      </TouchableOpacity>
-      {photo && <Image source={{ uri: photo }} style={styles.image} />}
+        <TouchableOpacity onPress={handlePickImage} style={styles.evidenceButton}>
+          <FontAwesome name="camera" size={32} color="black" />
+          <Text style={styles.buttonText}>Evidência</Text>
+        </TouchableOpacity>
+        {photo && <Image source={{ uri: photo }} style={styles.image} />}
         <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
           <FontAwesome name="check" size={32} color="black" />
           <Text style={styles.buttonText}>Salvar</Text>
@@ -190,14 +215,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     alignItems: 'center',
-
   },
   evidenceButton: {
     alignItems: 'center',
     marginRight: 10,
-
   },
-  
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+  },
 });
 
 export default AddScreen;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Pacote de ícones
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const DetalhesScreen: React.FC = () => {
   const route = useRoute();
@@ -18,10 +18,15 @@ const DetalhesScreen: React.FC = () => {
         <Icon name="arrow-back" size={35} color="black" />
       </TouchableOpacity>
       <Text style={styles.headerText}>Detalhes do Equipamento</Text>
-      
+
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Nome:</Text>
         <Text style={styles.value}>{equipamento.nome}</Text>
+      </View>
+
+      <View style={styles.fieldContainer}>
+        <Text style={styles.label}>Sobrenome:</Text>
+        <Text style={styles.value}>{equipamento.sobrenome}</Text>
       </View>
 
       <View style={styles.fieldContainer}>
@@ -43,6 +48,11 @@ const DetalhesScreen: React.FC = () => {
         <Text style={styles.label}>Informações:</Text>
         <Text style={styles.value}>{equipamento.info}</Text>
       </View>
+
+      {/* Exibir a imagem, se existir */}
+      {equipamento.photo && (
+        <Image source={{ uri: equipamento.photo }} style={styles.image} />
+      )}
     </View>
   );
 };
@@ -73,11 +83,10 @@ const styles = StyleSheet.create({
   fieldContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    //justifyContent: 'justify-between',
-    borderWidth: 1,  // Borda de 1px
-    borderColor: '#B0B0B0',  // Cor da borda tipo Excel
-    padding: 10,  // Espaçamento interno
-    marginVertical: 6,  // Espaçamento entre os campos
+    borderWidth: 1,
+    borderColor: '#B0B0B0',
+    padding: 10,
+    marginVertical: 6,
     backgroundColor: '#FFF',
   },
   label: {
@@ -89,6 +98,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#555',
     marginLeft: 4,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginTop: 20,
   },
 });
 
