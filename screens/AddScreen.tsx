@@ -45,38 +45,61 @@ const AddScreen: React.FC = () => {
   };
 
   const uploadImageToStorage = async (uri: string) => {
-    const storage = getStorage();
-    const imageRef = ref(storage, `images/${Date.now()}.jpg`);
-
-    const response = await fetch(uri);
-    const blob = await response.blob();
-
-    await uploadBytes(imageRef, blob);
-
-    // Obtém a URL de download da imagem
-    const downloadUrl = await getDownloadURL(imageRef);
-    setPhotoUrl(downloadUrl);
+    try {
+      console.log('Iniciando o upload da imagem...');
+      const storage = getStorage();
+      const imageRef = ref(storage, `images/${Date.now()}.jpg`);
+  
+      // Obtenha a imagem como um blob
+      console.log('Buscando a imagem...');
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error('Falha ao buscar a imagem');
+      }
+      const blob = await response.blob();
+      console.log(`Blob criado: tamanho=${blob.size}, tipo=${blob.type}`);
+  
+      // Faça upload da imagem
+      console.log('Fazendo upload da imagem...');
+      await uploadBytes(imageRef, blob);
+      console.log('Imagem upload concluído');
+  
+      // Obtém a URL de download da imagem
+      const downloadUrl = await getDownloadURL(imageRef);
+      console.log(`URL de download obtida: ${downloadUrl}`);
+      setPhotoUrl(downloadUrl);
+    } catch (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+      Alert.alert('Erro', 'Não foi possível fazer o upload da imagem');
+    }
   };
+  
+  
+  
 
   const handlePickImage = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Erro', 'Precisamos de permissão para acessar a câmera');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setPhoto(result.uri);
-      // Faz upload da imagem para o Firebase Storage
-      await uploadImageToStorage(result.uri);
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Erro', 'Precisamos de permissão para acessar a câmera');
+        return;
+      }
+  
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+  
+      if (!result.cancelled) {
+        setPhoto(result.uri);
+        await uploadImageToStorage(result.uri);
+      }
+    } catch (error) {
+      console.error('Erro ao selecionar imagem:', error);
+      Alert.alert('Erro', 'Não foi possível selecionar a imagem');
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -163,7 +186,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#2596be',
   },
   backButton: {
     alignSelf: 'flex-start',
@@ -180,7 +203,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: 'black',
     borderRadius: 20,
     padding: 10,
     marginBottom: 20,
@@ -193,7 +216,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: 'black',
     borderRadius: 20,
     overflow: 'hidden',
   },

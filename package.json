@@ -20,7 +20,7 @@
     "expo-image-picker": "^15.0.7",
     "expo-status-bar": "~1.12.1",
     "express": "^4.19.2",
-    "firebase": "^10.13.1",
+    "firebase": "^10.13.2",
     "mongodb": "^6.8.1",
     "mongoose": "^8.6.1",
     "react": "18.2.0",

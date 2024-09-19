@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Adicionado deleteDoc e doc
 import { db } from '../banco/firebaseConfig'; // Arquivo de configuração do Firebase
-import { blue } from 'react-native-reanimated/lib/typescript/Colors';
 
 const ListaScreen: React.FC = () => {
   const [equipamentos, setEquipamentos] = useState([]);
@@ -36,62 +35,61 @@ const ListaScreen: React.FC = () => {
     navigation.navigate('Home');
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <View style={styles.itemContent}>
-        <FontAwesome name="star-o" size={24} color="black" style={styles.icon} />
-        <View>
-          <Text style={styles.setor}>{item.area}</Text>
-          <Text style={styles.equipamento}>{item.nome}</Text>
-        </View>
-      </View>
-      <FontAwesome name="sort-alpha-asc" size={24} color="black" style={styles.icon} />
-    </View>
-  );
-
-  
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, 'equipamentos', id));
+      fetchEquipamentos(); // Atualiza a lista após a exclusão
+    } catch (error) {
+      console.error('Erro ao excluir equipamento', error);
+    }
+  };
 
   return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <FontAwesome name="sign-out" size={36} color="black" />
-            
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Lista de Equipamentos</Text>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <FontAwesome name="sign-out" size={36} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Lista de Equipamentos</Text>
+      </View>
 
-        <FlatList
+      <FlatList
         data={equipamentos}
         renderItem={({ item }) => (
           <TouchableOpacity
-          onPress={() => navigation.navigate('EquipamentoDetalhes', { equipamento: item })}
-        >
-        
-          
-          <View style={styles.itemContainer}>
-            <View style={styles.itemContent}>
-              <FontAwesome name="laptop" size={24} color="black" style={styles.icon} />
-              <View>
-                <Text style={styles.setor}>{item.area}</Text>
-                <Text style={styles.equipamento}>{item.nome} | {item.hostname}</Text>
-                <Text style={styles.modelo}>{item.modelo}</Text> 
+            onPress={() => navigation.navigate('EquipamentoDetalhes', { equipamento: item })}
+          >
+            <View style={styles.itemContainer}>
+              <View style={styles.itemContent}>
+                <FontAwesome name="laptop" size={24} color="black" style={styles.icon} />
+                <View>
+                  <Text style={styles.setor}>{item.area}</Text>
+                  <Text style={styles.equipamento}>{item.nome} | {item.hostname}</Text>
+                  <Text style={styles.modelo}>{item.modelo}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => navigation.navigate('Edit', { equipamento: item })}
+                >
+                  <MaterialIcons name="edit" size={32} color="white" />
+                </TouchableOpacity>
 
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDelete(item.id)}
+                >
+                  <MaterialIcons name="delete" size={32} color="white" />
+                </TouchableOpacity>
               </View>
             </View>
-            
-            <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => navigation.navigate('Edit', { equipamento: item })}
-      >
-        <MaterialIcons name="edit" size={32} color="white" />
-      </TouchableOpacity>
-          </View>
           </TouchableOpacity>
         )}
         keyExtractor={item => item.id}
       />
+      
       <TouchableOpacity
         style={styles.floatingButton}
         onPress={() => navigation.navigate('Add')}
@@ -105,15 +103,15 @@ const ListaScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    //backgroundColor: '#fff',
+    backgroundColor: '#2596be',
   },
   headerText: {
     fontSize: 22,
     fontWeight: 'bold',
     padding: 7,
-    //marginVertical: 1,
     textAlign: 'center',
-    color: 'red',
+    color: 'blue',
   },
   itemContainer: {
     flexDirection: 'row',
@@ -137,8 +135,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   equipamento: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 16,
+    color: 'black',
   },
   floatingButton: {
     position: 'absolute',
@@ -153,9 +151,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   editButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
     backgroundColor: '#333',
     width: 35,
     height: 45,
@@ -164,13 +159,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 8,
   },
+  deleteButton: {
+    backgroundColor: '#ff0000',
+    width: 35,
+    height: 45,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    marginLeft: 10,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   logoutButton: {
     borderRadius: 5,
     marginVertical: 40,
     marginHorizontal: 10,
-
   },
-
 });
 
 export default ListaScreen;

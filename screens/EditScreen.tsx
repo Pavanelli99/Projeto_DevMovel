@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#2596be',
   },
   backButton: {
     alignSelf: 'flex-start',
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: 'black',
     borderRadius: 20,
     padding: 10,
     marginBottom: 20,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: 'black',
     borderRadius: 20,
     overflow: 'hidden',
   },

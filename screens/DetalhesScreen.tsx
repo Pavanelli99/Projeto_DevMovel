@@ -46,12 +46,12 @@ const DetalhesScreen: React.FC = () => {
 
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Informações:</Text>
-        <Text style={styles.value}>{equipamento.info}</Text>
+        <Text style={styles.value}>{equipamento.informacoes}</Text>
       </View>
 
       {/* Exibir a imagem, se existir */}
-      {equipamento.photo && (
-        <Image source={{ uri: equipamento.photo }} style={styles.image} />
+      {equipamento.photoUrl && (
+        <Image source={{ uri: equipamento.photoUrl }} style={styles.image} />
       )}
     </View>
   );
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#2596be',
     position: 'relative',
   },
   backButton: {
