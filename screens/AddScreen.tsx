@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../banco/firebaseConfig'; // Arquivo de configuração do Firebase
 import * as ImagePicker from 'expo-image-picker';
+import { storage } from '../banco/firebaseConfig';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 
 const AddScreen: React.FC = () => {
@@ -46,31 +47,22 @@ const AddScreen: React.FC = () => {
 
   const uploadImageToStorage = async (uri: string) => {
     try {
-      console.log('Iniciando o upload da imagem...');
-      const storage = getStorage();
+      // Cria uma referência para o arquivo no Firebase Storage
       const imageRef = ref(storage, `images/${Date.now()}.jpg`);
   
-      // Obtenha a imagem como um blob
-      console.log('Buscando a imagem...');
+      // Converte a URI da imagem em um blob
       const response = await fetch(uri);
-      if (!response.ok) {
-        throw new Error('Falha ao buscar a imagem');
-      }
       const blob = await response.blob();
-      console.log(`Blob criado: tamanho=${blob.size}, tipo=${blob.type}`);
   
-      // Faça upload da imagem
-      console.log('Fazendo upload da imagem...');
+      // Faz o upload da imagem
       await uploadBytes(imageRef, blob);
-      console.log('Imagem upload concluído');
   
       // Obtém a URL de download da imagem
       const downloadUrl = await getDownloadURL(imageRef);
-      console.log(`URL de download obtida: ${downloadUrl}`);
-      setPhotoUrl(downloadUrl);
+  
+      return downloadUrl;
     } catch (error) {
-      console.error('Erro ao fazer upload da imagem:', error);
-      Alert.alert('Erro', 'Não foi possível fazer o upload da imagem');
+      console.error("Erro ao fazer upload da imagem:", error);
     }
   };
   
