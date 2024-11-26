@@ -50,8 +50,8 @@ const DetalhesScreen: React.FC = () => {
       </View>
 
       {/* Exibir a imagem, se existir */}
-      {equipamento.photoUrl && (
-        <Image source={{ uri: equipamento.photoUrl }} style={styles.image} />
+      {equipamento.imageUrl && (
+        <Image source={{ uri: equipamento.imageUrl }} style={styles.image} />
       )}
     </View>
   );
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 6,
     backgroundColor: '#FFF',
+    borderRadius: 10,
   },
   label: {
     fontSize: 18,
@@ -100,10 +101,12 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   image: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'contain',
-    marginTop: 20,
+    width: 350,
+    height: 300,
+    borderRadius: 10,
+    alignSelf: 'center',
+    justifyContent: 'space-between',
+    marginTop:20,
   },
 });
 
